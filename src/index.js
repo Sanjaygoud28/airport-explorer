@@ -1,14 +1,15 @@
 import express from "express";
 import connectDb from "./config/mongodb.js";
+import AirportRouter from "./routes/Airportrouter.js";
 
 const app=express();
 app.use(express.json());
 const PORT = 8000;
 
-
-app.get("/", (req, res) => {
-  res.send("Server is running successfully");
-});
+app.use("/Airports",AirportRouter)
+// app.get("/", (req, res) => {
+//   res.send("Server is running successfully");
+// });
 async function startBackendApplication(){
     await connectDb();
     startHttpServer()
