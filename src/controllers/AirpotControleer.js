@@ -42,7 +42,7 @@ async function searchAirpotByName(req, res, next) {
 
     const { name } = req.query;
     console.log("3. Search name:", name);
-    
+
     if (!name || name.trim().length < 2) {
       throw new Error("Please provide at least 2 characters to search");
     }
@@ -51,8 +51,7 @@ async function searchAirpotByName(req, res, next) {
       name: { $regex: name.trim(), $options: "i" },
     }).limit(10);
 
-
-console.log("4. Database result:", airports);
+    console.log("4. Database result:", airports);
     if (airports.length === 0) {
       throw new Error(`No airports found matching "${name}"`);
     }
@@ -76,4 +75,57 @@ console.log("4. Database result:", airports);
   }
 }
 
-export { getAirpotByIata, searchAirpotByName };
+async function getAirports(req, res, next) {
+  try {
+    const { type, page = 1, limit = 10 } = req.query;
+
+    const query = {};
+
+    console.log("inside query 123", query);
+    if (type) query.type = type;
+    console.log("inside query", query);
+
+    const airports = await Airports.find(query).populate({
+      path: "city",
+      populate: { path: "country" },
+    });
+
+    const total = airports.length;
+    const start = (page - 1) * limit;
+    const paginated = airports.slice(start, start + Number(limit));
+
+    res.status(200).json({
+      success: true,
+      count: paginated.length,
+      total,
+      page: Number(page),
+      totalPages: Math.ceil(total / limit),
+      data: paginated,
+    });
+  } catch (error) {
+    console.log("following", error.message);
+    res.status(400).json({
+      error: true,
+      message: error.message,
+    });
+  }
+}
+
+// @route   POST /api/airports
+async function createAirports(req, res, next) {
+    try {
+      const data =req.body
+      const airport = await Airports.create(req.body);
+      res.status(201).json({ 
+        success: true,
+         data: airport });
+         console.log(airport)
+    } catch (error) {
+      res.status(400).json({
+        error:true,
+        message:error.message
+      })
+    }
+  };
+
+export { getAirpotByIata, searchAirpotByName, getAirports ,createAirports};
