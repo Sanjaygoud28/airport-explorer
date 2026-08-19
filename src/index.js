@@ -1,9 +1,12 @@
 import express from "express";
 import connectDb from "./config/mongodb.js";
 import AirportRouter from "./routes/Airportrouter.js";
+import morgan  from "morgan";
 
 const app=express();
 app.use(express.json());
+
+app.use(morgan("dev"))
 const PORT = 8000;
 
 app.use("/Airports",AirportRouter)
