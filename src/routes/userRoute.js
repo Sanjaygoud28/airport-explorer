@@ -5,7 +5,7 @@ import { verifyAccessToken } from "../middlewares/auth.js";
 import { validate } from "../middlewares/validate.js";
 
 userRouter.post("/register",validate(createUserSchema),createUser)
-userRouter.post("/login",verifyAccessToken,loginUser)
+userRouter.post("/login",loginUser)
 userRouter.get("/logout",verifyAccessToken,logout)
 userRouter.get("/auth/refresh",refreshAccessToken)
 
