@@ -1,7 +1,7 @@
 import Airports from "../models/airport.js";
 import Countries from "../models/country.js";
 import Cities from "../models/city.js";
-import { getFromCache,setInCache } from "../utilis/cache.js";
+import { getFromCache,setInCache } from "../utils/cache.js";
 async function getAirpotByIata(req, res, next) {
   try {
     const { iata_code } = req.params;
