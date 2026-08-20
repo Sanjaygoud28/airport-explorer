@@ -2,11 +2,13 @@ import express from "express";
 import connectDb from "./config/mongodb.js";
 import AirportRouter from "./routes/Airportrouter.js";
 import morgan  from "morgan";
+import { apiLimiter } from "./middlewares/rateLimiter.js";
 
 const app=express();
 app.use(express.json());
 
 app.use(morgan("dev"))
+app.use("/Airports", apiLimiter);
 const PORT = 8000;
 
 app.use("/Airports",AirportRouter)

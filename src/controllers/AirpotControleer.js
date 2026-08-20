@@ -1,14 +1,31 @@
 import Airports from "../models/airport.js";
 import Countries from "../models/country.js";
 import Cities from "../models/city.js";
-
+import { getFromCache,setInCache } from "../utilis/cache.js";
 async function getAirpotByIata(req, res, next) {
   try {
     const { iata_code } = req.params;
-    console.log("request from client", req);
+    // console.log("request from client", req);
     if (!/^[A-Za-z]{3}$/.test(iata_code)) {
       throw new Error(400, "IATA code must be exactly 3 letters");
     }
+
+    const code = iata_code.toUpperCase();
+    const cacheKey = `airport:${code}`;
+
+    console.log("downwards,,let see")
+    // 1. Check cache first — skip the DB entirely on a hit
+    const cached = getFromCache(cacheKey);  //function called
+    if (cached) {
+      
+      console.log(`first time Cache HIT for ${code}`);
+      return res.status(200).json(cached);
+    }
+
+    console.log(`Cache MISS for ${code} — querying MongoDB`);
+
+    
+    // 2. Cache miss — query MongoDB as usual
     const airports = await Airports.findOne({
       iataCode: iata_code.toUpperCase(),
     }).populate({
@@ -24,7 +41,9 @@ async function getAirpotByIata(req, res, next) {
         `No airport found with IATA code ${iata_code.toUpperCase()}`,
       );
     }
+    // 3. Store in cache for next time
 
+    setInCache(cacheKey, airports);  // function called
     res.status(200).json({ success: true, data: airports });
   } catch (error) {
     console.log(error.message);
@@ -113,19 +132,20 @@ async function getAirports(req, res, next) {
 
 // @route   POST /api/airports
 async function createAirports(req, res, next) {
-    try {
-      const data =req.body
-      const airport = await Airports.create(req.body);
-      res.status(201).json({ 
-        success: true,
-         data: airport });
-         console.log(airport)
-    } catch (error) {
-      res.status(400).json({
-        error:true,
-        message:error.message
-      })
-    }
-  };
+  try {
+    const data = req.body;
+    const airport = await Airports.create(req.body);
+    res.status(201).json({
+      success: true,
+      data: airport,
+    });
+    console.log(airport);
+  } catch (error) {
+    res.status(400).json({
+      error: true,
+      message: error.message,
+    });
+  }
+}
 
-export { getAirpotByIata, searchAirpotByName, getAirports ,createAirports};
+export { getAirpotByIata, searchAirpotByName, getAirports, createAirports };
