@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 // Mongoose schema
 const userSchema = new mongoose.Schema({
-  username: {
+  name: {
     type: String,
     required: true,
     unique: true,
@@ -25,7 +25,7 @@ const userSchema = new mongoose.Schema({
   },
   displayName: {
     type: String,
-    required: true,
+    // required: true,
     trim: true
   },
   password :{
@@ -37,7 +37,7 @@ const userSchema = new mongoose.Schema({
   role: {
     type: String,
     required: true,
-    default: "student",
+    default: "user",  // everyone signs up as a normal user by default
     enum: [ 'admin', 'user']
   },
   refreshToken : {
@@ -46,12 +46,18 @@ const userSchema = new mongoose.Schema({
   }
 }, {
   timestamps: true
-});
-userSchema.pre("save", async function(){
-  const salt = await bcrypt.genSalt(10);
-  console.log(salt);
-  this.password = await bcrypt.hash(this.password, salt);
-});
+},
+);
+
+
+userSchema.pre("save", async function () {
+  
+  if(!this.isModified("password")){
+    return
+  }
+  this.password = await bcrypt.hash(this.password,10)
+})
+
 
 const User = mongoose.model('User', userSchema);
 
