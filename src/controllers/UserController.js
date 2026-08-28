@@ -65,6 +65,8 @@ async function signupUser(req, res) {
       },
       accessToken: accessToken,
     });
+
+
   } catch (error) {
     console.log("error message ", error);
     res.status(401).json({
@@ -150,8 +152,8 @@ async function logout(req, res) {
   try {
     //get the userId from the req.object
     const userId = req.user.userId;
+    
     //Remove refresh token from the DB
-
     //WE HAVE TO GET THEeUSERiD-Find user document in mongoDb-nullify the refreshToken
     await User.findByIdAndUpdate(userId, { refreshToken: null });
     //clear the cookies also
