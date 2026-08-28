@@ -6,7 +6,7 @@ import { verifyAccessToken } from "../middlewares/auth.js";
 
 userRouter.post("/signup",signupUser)
 userRouter.post("/login",loginUser)
-userRouter.get("/logout",verifyAccessToken,logout)
+userRouter.post("/logout",verifyAccessToken,logout)
 userRouter.get("/auth/refresh",refreshAccessToken)
 
 export default userRouter;
