@@ -4,8 +4,10 @@ import AirportRouter from "./routes/Airportrouter.js";
 import morgan  from "morgan";
 import { apiLimiter } from "./middlewares/rateLimiter.js";
 import userRouter from "./routes/userRoute.js";
+import cookieParser from "cookie-parser";
 
 const app=express();
+app.use(cookieParser());
 app.use(express.json());
 
 app.use(morgan("dev"))
