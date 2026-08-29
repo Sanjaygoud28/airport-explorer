@@ -1,4 +1,5 @@
-import { jwt } from "zod";
+// import { jwt } from "zod";
+import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 import {
   generateAccessToken,
@@ -7,6 +8,7 @@ import {
 import bcrypt from "bcryptjs";
 
 const sendRefreshTokenCookie = (res, refreshToken) => {
+
   res.cookie("refreshToken", refreshToken, {
     httpOnly: true,
     secure: true,
@@ -118,6 +120,7 @@ async function loginUser(req, res) {
     //save the refresh token inside user
     existedUser.refreshToken = refreshToken;
     await existedUser.save();
+
     //set the browser cookies-access token , refresh token
 
     // res.cookie("refreshToken", refreshToken, {
@@ -169,17 +172,22 @@ async function logout(req, res) {
     });
   }
 }
+
 async function refreshAccessToken(req, res) {
+
   try {
-    const refreshToken = req.cookies.refreshToken;
+    const refreshToken = req.cookies?.refreshToken;
     console.log("refresh Token from :", refreshToken);
+   
     if (!refreshToken) {
       throw new error("no refresh token found !");
     }
+
     const decodedRefreshToken = jwt.verify(
       refreshToken,
       process.env.REFRESH_TOKEN_SECRET,
     );
+
     const userId = decodedRefreshToken.userId;
     const existingUser = await User.findById(userId);
 
