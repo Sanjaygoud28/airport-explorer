@@ -46,7 +46,7 @@ const verifyAccessToken = (req, res, next) => {
 function requireAdmin(req,res,next){
   if(req.user?.role!=="admin"){
     throw new error("Access denied -admin role required")
-    next()
   }
+  next()
 }
 export { verifyAccessToken ,requireAdmin};

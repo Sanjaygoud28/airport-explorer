@@ -148,4 +148,25 @@ async function createAirports(req, res, next) {
   }
 }
 
+
+const UpdateAirport= async (req,res,next)=>{
+
+  try {
+     const airport = await Airports.findByIdAndUpdate(req.params.id,req.body,{
+      new:true,
+      runValidators:true,
+     });
+
+     if(!airport){
+      throw new Error("Airport not found")
+     }
+  } catch (error) {
+    res.status(400).json({
+      error:true,
+      message:error.message
+    })
+  }
+
+
+}
 export { getAirpotByIata, searchAirpotByName, getAirports, createAirports };
