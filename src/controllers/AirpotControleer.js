@@ -152,21 +152,54 @@ async function createAirports(req, res, next) {
 const UpdateAirport= async (req,res,next)=>{
 
   try {
-     const airport = await Airports.findByIdAndUpdate(req.params.id,req.body,{
-      new:true,
-      runValidators:true,
-     });
+     const airport = await Airports.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      {
+        returnDocument: "after",
+        runValidators:true,
+     }
+    );
 
      if(!airport){
       throw new Error("Airport not found")
      }
+     console.log("Airport details",airport)
+     res.status(200).json({
+      success: true,
+      message:"updated with new fields",
+      data: airport,
+    });
   } catch (error) {
-    res.status(400).json({
+    res.status(403).json({
       error:true,
       message:error.message
     })
   }
+}
+const DeleteAirport = async(req,res,next)=>{
+try {
+  const airport = await Airports.findByIdAndDelete(req.params.id);
+    if (!airport) {
+    throw new Error("Airport not found")
+    }
+
+    res.status(200).json({
+      sucess:true,
+      message:"Airport Deleted"
+
+    })
+
+} catch (error) {
+  res.status(404).json({
+      error:true,
+      message:error.message
+    })
 
 
 }
-export { getAirpotByIata, searchAirpotByName, getAirports, createAirports };
+}
+
+
+
+export { getAirpotByIata, searchAirpotByName, getAirports, createAirports,UpdateAirport ,DeleteAirport};
