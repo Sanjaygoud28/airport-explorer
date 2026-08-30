@@ -8,7 +8,6 @@ import {
 import bcrypt from "bcryptjs";
 
 const sendRefreshTokenCookie = (res, refreshToken) => {
-
   res.cookie("refreshToken", refreshToken, {
     httpOnly: true,
     secure: true,
@@ -67,8 +66,6 @@ async function signupUser(req, res) {
       },
       accessToken: accessToken,
     });
-
-
   } catch (error) {
     console.log("error message ", error);
     res.status(401).json({
@@ -114,9 +111,12 @@ async function loginUser(req, res) {
     }
 
     //create access token and refresh token
-    const accessToken = generateAccessToken(existedUser._id);
-    const refreshToken = generateRefreshToken(existedUser._id);
+    const accessToken = generateAccessToken(existedUser._id, existedUser.role);
 
+    const refreshToken = generateRefreshToken(
+      existedUser._id,
+      existedUser.role,
+    );
     //save the refresh token inside user
     existedUser.refreshToken = refreshToken;
     await existedUser.save();
@@ -155,7 +155,7 @@ async function logout(req, res) {
   try {
     //get the userId from the req.object
     const userId = req.user.userId;
-    
+
     //Remove refresh token from the DB
     //WE HAVE TO GET THEeUSERiD-Find user document in mongoDb-nullify the refreshToken
     await User.findByIdAndUpdate(userId, { refreshToken: null });
@@ -174,11 +174,10 @@ async function logout(req, res) {
 }
 
 async function refreshAccessToken(req, res) {
-
   try {
     const refreshToken = req.cookies?.refreshToken;
     console.log("refresh Token from :", refreshToken);
-   
+
     if (!refreshToken) {
       throw new error("no refresh token found !");
     }
@@ -208,4 +207,56 @@ async function refreshAccessToken(req, res) {
   }
 }
 
-export { signupUser, loginUser, logout, refreshAccessToken };
+const createAdmin = async (req, res) => {
+  try {
+    // Only an existing admin can create another admin
+    if (req.user.role !== "admin") {
+      const err = new Error("Only admins can create admin accounts");
+      err.statusCode = 403;
+      throw err;
+    }
+
+    const { name, email, mobile, password } = req.body;
+
+    if (!name || !email || !mobile || !password) {
+      const err = new Error("Name, email, mobile and password are required");
+      err.statusCode = 400;
+      throw err;
+    }
+
+    const existingUser = await User.findOne({ email });
+
+    if (existingUser) {
+      const err = new Error("User with this email already exists");
+      err.statusCode = 409;
+      throw err;
+    }
+
+    const newAdmin = await User.create({
+      name,
+      email,
+      mobile,
+      password,
+      role: "admin",
+    });
+
+    res.status(201).json({
+      success: true,
+      message: "Admin created successfully",
+      data: {
+        id: newAdmin._id,
+        name: newAdmin.name,
+        email: newAdmin.email,
+        mobile: newAdmin.mobile,
+        role: newAdmin.role,
+      },
+    });
+  } catch (error) {
+    res.status(403).json({
+      message: error.message,
+      error: true,
+    });
+  }
+};
+
+export { signupUser, loginUser, logout, refreshAccessToken, createAdmin };
