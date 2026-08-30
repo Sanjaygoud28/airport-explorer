@@ -13,9 +13,9 @@ app.use(express.json());
 app.use(morgan("dev"))
 app.use("/Airports", apiLimiter);
 app.use("/users", userRouter);
+app.use("/Airports",AirportRouter)
 const PORT = 8000;
 
-app.use("/Airports",AirportRouter)
 // app.get("/", (req, res) => {
 //   res.send("Server is running successfully");
 // });
