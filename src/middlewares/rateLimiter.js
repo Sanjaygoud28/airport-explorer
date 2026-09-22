@@ -8,7 +8,7 @@ import rateLimit from "express-rate-limit";
 // and is a common, expected security practice for public APIs.
 export const apiLimiter = rateLimit({
   windowMs: 2 * 60 * 1000, // 15 minutes
-  max: 10,
+  max: 20,
   message: {
     success: false,
     message: "Too many requests from this IP. Please try again after 15 minutes.",
