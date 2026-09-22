@@ -12,6 +12,8 @@ const AirportRouter =express.Router()
 AirportRouter.get("/search",searchAirpotByName)
 AirportRouter.get("/:iata_code",getAirpotByIata)
 AirportRouter.get("/",getAirports)
+// AirportRouter.get("/",getcities)
+
 
 
 // ---------- ADMIN-ONLY routes — must be logged in AND have role "admin" ----------

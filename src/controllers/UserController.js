@@ -37,7 +37,7 @@ async function signupUser(req, res) {
     });
 
     // create accessToken, refreshToken
-    const accessToken = generateAccessToken(newUser._id);
+    const accessToken = generateAccessToken(newUser._id, newUser.role);
     const refreshToken = generateRefreshToken(newUser._id);
 
     // save the refresh token inside user
@@ -140,7 +140,13 @@ async function loginUser(req, res) {
       success: true,
       accessToken: accessToken,
       message: "user loggedin succesfully",
-      userId: existedUser._id,
+      user: {
+        _id: existedUser._id,
+        name: existedUser.name,
+        email: existedUser.email,
+        mobile: existedUser.mobile,
+        role: existedUser.role,
+      },
     });
   } catch (error) {
     console.error(error);
@@ -179,9 +185,14 @@ async function refreshAccessToken(req, res) {
     console.log("refresh Token from :", refreshToken);
 
     if (!refreshToken) {
-      throw new error("no refresh token found !");
-    }
 
+      // no refresh token user is aguest
+      return res.status(401).json({
+        success: false,
+        message: "No refresh token found",
+        error: true,
+      });
+    }
     const decodedRefreshToken = jwt.verify(
       refreshToken,
       process.env.REFRESH_TOKEN_SECRET,
@@ -193,17 +204,38 @@ async function refreshAccessToken(req, res) {
     if (!existingUser) {
       throw new Error("user not found");
     }
-    const newAccessToken = generateAccessToken(userId);
+    const newAccessToken = generateAccessToken(
+      existingUser._id,
+      existingUser.role,
+    );
     res.status(200).json({
       success: true,
       message: "access token has been refreshed succesfully!",
       accessToken: newAccessToken,
+      data: {
+        id: existingUser._id,
+        name: existingUser.name,
+        email: existingUser.email,
+        mobile: existingUser.mobile,
+        role: existingUser.role,
+      },
     });
   } catch (error) {
-    res.status(401).json({
-      message: error.message,
+
+    //for refresh token expired
+   if (error.name === "TokenExpiredError") {
+    return res.status(401).json({
+      success: false,
+      message: "Refresh token has expired",
       error: true,
     });
+  }
+// refresh token is invalid /tampered
+  return res.status(401).json({
+    success: false,
+    message: "Invalid refresh token",
+    error: true,
+  });
   }
 }
 
