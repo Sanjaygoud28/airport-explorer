@@ -1,3 +1,5 @@
+import dotenv from "dotenv";
+dotenv.config();
 import express from "express";
 import connectDb from "./config/mongodb.js";
 import AirportRouter from "./routes/Airportrouter.js";
@@ -38,7 +40,8 @@ app.use("/airports", apiLimiter);
 app.use("/users", userRouter);
 app.use("/airports",AirportRouter)
 app.use("/Cities", CityRoutes);
-const PORT = 8000;
+
+const PORT = process.env.PORT || 5000;
 
 // app.get("/", (req, res) => {
 //   res.send("Server is running successfully");
