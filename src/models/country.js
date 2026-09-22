@@ -4,13 +4,13 @@ const countrySchema = new mongoose.Schema(
     {
   name: {
     type: String,
-    requires: true,
+    required: true,
     trim: true,
   },
   countryCodeTwo: {
     type: String,
     required: true,
-    upperCase: true,
+    uppercase: true,
     trim: true,
     minlength: 2,
     maxlength: 2,

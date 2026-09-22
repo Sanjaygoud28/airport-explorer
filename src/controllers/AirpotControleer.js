@@ -68,7 +68,14 @@ async function searchAirpotByName(req, res, next) {
 
     const airports = await Airports.find({
       name: { $regex: name.trim(), $options: "i" },
-    }).limit(10);
+    })
+    .populate({
+      path: "city",
+      populate: {
+        path: "country",
+      },
+    })
+    .limit(10);
 
     console.log("4. Database result:", airports);
     if (airports.length === 0) {
@@ -79,10 +86,15 @@ async function searchAirpotByName(req, res, next) {
       count: airports.length,
       message: "suucesfully fetched",
       data: airports.map((a) => ({
-        iata_code: a.iataCode,
-        icao_code: a.icaoCode,
-        name: a.name,
-        type: a.type,
+         _id: a._id,
+      iataCode: a.iataCode,
+      icaoCode: a.icaoCode,
+      name: a.name,
+      type: a.type,
+      latitudeDeg: a.latitudeDeg,
+      longitudeDeg: a.longitudeDeg,
+      elevationFt: a.elevationFt,
+      city: a.city,
       })),
     });
   } catch (error) {
@@ -199,7 +211,31 @@ try {
 
 }
 }
+// src/controllers/cityController.js
+// import City from "../models/City.js"; // adjust the import name/path to match YOUR city model file exactly
+
+// @route   GET /Cities
+ const getcities = async (req, res, next) => {
+  try {
+    const cities = await Cities.find().populate("country").sort({ name: 1 });
+
+    const formatted = cities.map((city) => ({
+      id: city._id,
+      name: city.name,
+      country: city.country?.name || null,
+    }));
+
+    res.status(200).json({ success: true, data: formatted });
+    console.log(formatted)
+  } catch (error) {
+    console.log(error.message)
+    res.status(404).json({
+      error:true,
+      message:error.message
+    })
+    // next(error);
+  }
+};
 
 
-
-export { getAirpotByIata, searchAirpotByName, getAirports, createAirports,UpdateAirport ,DeleteAirport};
+export { getAirpotByIata, searchAirpotByName, getAirports, createAirports,UpdateAirport ,DeleteAirport,getcities};
