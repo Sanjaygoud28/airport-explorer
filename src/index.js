@@ -18,7 +18,7 @@ app.use(express.json());
 
 const allowedOrigins = [
   "http://localhost:3000",
-  "https://sundeeep.vercel.app"
+  "airport-explorer-frontend-3tzwsqigf-aily-sanjay-gouds-projects.vercel.app"
 ];
 
 // CORS options
